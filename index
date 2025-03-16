@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Gallery</title>
+    <script src="https://cdn.fluidplayer.com/v3/current/fluidplayer.min.js"></script>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: #1a1a1a;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #4a148c;
+        }
+
+        .nav-menu {
+            background: #1a1a1a;
+            padding: 10px 0;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .menu-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            z-index: 1001;
+        }
+
+        .menu {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .menu-item {
+            position: relative;
+            margin: 0 15px;
+        }
+
+        .menu-link {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .menu-link:hover {
+            color: #9c27b0;
+        }
+
+        .submenu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #1a1a1a;
+            min-width: 200px;
+            border: 1px solid #4a148c;
+            border-radius: 4px;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-item:hover .submenu {
+            display: block;
+        }
+
+        .submenu-item {
+            list-style: none;
+        }
+
+        .submenu-link {
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            display: block;
+            transition: all 0.3s;
+            font-size: 0.95em;
+        }
+
+        .submenu-link:hover {
+            background-color: #4a148c;
+            padding-left: 25px;
+        }
+
+        .menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .menu-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .logo-container:hover {
+            opacity: 0.9;
+        }
+
+        .logo-image {
+            height: 65px;
+            width: auto;
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 20px;
+            position: relative;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            background: #1a1a1a;
+            border: 2px solid #4a148c;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #9c27b0;
+            box-shadow: 0 0 10px rgba(156, 39, 176, 0.3);
+        }
+
+        .search-button {
+            padding: 12px;
+            background: #4a148c;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+        }
+
+        .search-button:hover {
+            background: #9c27b0;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            flex: 1;
+        }
+
+        .video-card {
+            background: #1a1a1a00;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .thumbnail-container {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .video-card:hover .video-thumbnail {
+            transform: scale(1.05);
+        }
+
+        .play-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-card:hover .play-overlay {
+            opacity: 1;
+        }
+
+        .play-icon {
+            font-size: 48px;
+            color: #fff;
+            background: rgba(156, 39, 176, 0.8);
+            border-radius: 50%;
+            padding: 10px;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-title {
+            font-size: 1.1em;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .video-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            font-size: 0.9em;
+            color: #9c27b0;
+            cursor: pointer;
+            transition: color 0.3s;
+            text-decoration: none;
+        }
+
+        .tag:hover {
+            color: #ce93d8;
+        }
+
+        .video-page {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+        }
+
+        .video-page.active {
+            display: block;
+        }
+
+        .video-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .video-details {
+            margin-bottom: 20px;
+        }
+
+        .main-video {
+            background: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        @media (min-width: 1024px) {
+            .video-container {
+                grid-template-columns: 2fr 1fr;
+            }
+
+            #video-player:not(.fluid_video_wrapper--fullscreen) {
+                aspect-ratio: 16/9 !important;
+                height: auto !important;
+            }
+        }
+
+        .recommended-videos {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .recommended-title {
+            font-size: 1.5em;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .recommended-video {
+            display: flex;
+            gap: 15px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: background-color 0.3s;
+        }
+
+        .recommended-video:hover {
+            background: #2a2a2a02;
+        }
+
+        .recommended-thumbnail {
+            width: 160px;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+        }
+
+        .recommended-info {
+            padding: 10px;
+            flex: 1;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #4a148c;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background: #9c27b0;
+        }
+
+        .footer {
+            background: #1a1a1a;
+            padding: 20px;
+            margin-top: auto;
+            border-top: 2px solid #4a148c;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .social-links a {
+            color: #9c27b0;
+            font-size: 24px;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: #ce93d8;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.9em;
+        }
+
+        .footer-links a:hover {
+            color: #9c27b0;
+        }
+
+        @media (max-width: 1024px) {
+            .video-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+            .menu-toggle {
+                display: block;
+            }
+
+            .nav-menu {
+                position: fixed;
+                top: 0;
+                right: -300px;
+                width: 300px;
+                height: 100vh;
+                background: #1a1a1a;
+                padding: 80px 20px 20px;
+                transition: right 0.3s ease;
+                box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+            }
+
+            .nav-menu.active {
+                right: 0;
+            }
+
+            .menu {
+                flex-direction: column;
+            }
+
+            .menu-item {
+                margin: 0;
+                width: 100%;
+            }
+
+            .menu-link {
+                padding: 15px 20px;
+                border-bottom: 1px solid #2a2a2a;
+            }
+
+            .submenu {
+                position: static;
+                width: 100%;
+                border: none;
+                background: #2a2a2a;
+                display: none;
+                box-shadow: none;
+            }
+
+            .menu-item.active .submenu {
+                display: block;
+            }
+
+            .submenu-link {
+                padding: 12px 30px;
+            }
+
+            body.menu-open {
+                overflow: hidden;
+            }
+
+            .recommended-video {
+                flex-direction: column;
+            }
+
+            .recommended-thumbnail {
+                width: 100%;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-overlay" onclick="toggleMenu()"></div>
+    <header class="header">
+        <a href="/" onclick="resetAndShowHome(); return false;" class="logo-container">
+            <img src="https://files.catbox.moe/rt66bs.png" alt="Logo" class="logo-image">
+        </a>
+        <button class="menu-toggle" onclick="toggleMenu()">
+            <i class='bx bx-menu'></i>
+        </button>
+        <nav class="nav-menu">
+            <div class="menu-container">
+                <ul class="menu" id="mainMenu">
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="toggleSubmenu(this)">Categories</a>
+                        <ul class="submenu">
+                            <li class="submenu-item"><a href="/tag/action" onclick="filterByTag('action'); return false;" class="submenu-link">Action</a></li>
+                            <li class="submenu-item"><a href="/tag/comedy" onclick="filterByTag('comedy'); return false;" class="submenu-link">Comedy</a></li>
+                            <li class="submenu-item"><a href="/tag/drama" onclick="filterByTag('drama'); return false;" class="submenu-link">Drama</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#popular" class="menu-link">Popular</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link" onclick="toggleSubmenu(this)">More</a>
+                        <ul class="submenu">
+                            <li class="submenu-item"><a href="#about" class="submenu-link">About</a></li>
+                            <li class="submenu-item"><a href="#contact" class="submenu-link">Contact</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search videos..." id="searchInput">
+        <button class="search-button" onclick="performSearch()">
+            <i class='bx bx-search'></i>
+        </button>
+    </div>
+
+    <div id="homePage" class="home-page">
+        <div class="video-grid" id="videoGrid"></div>
+    </div>
+
+    <div id="videoPage" class="video-page">
+        <a href="/" class="back-button" onclick="resetAndShowHome(); return false;">
+            <i class='bx bx-arrow-back'></i> Voltar
+        </a>
+        <div class="video-container">
+            <div class="main-video-section">
+                <div class="video-details">
+                    <h1 id="currentVideoTitle" class="video-title"></h1>
+                    <div id="currentVideoTags" class="video-tags"></div>
+                </div>
+                <div class="main-video">
+                    <video id="video-player"></video>
+                </div>
+            </div>
+            <div class="recommended-videos">
+                <h2 class="recommended-title">Vídeos Recomendados</h2>
+                <div id="recommendedVideos"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links">
+                <a href="https://instagram.com/your-username" target="_blank"><i class='bx bxl-instagram'></i></a>
+                <a href="https://t.me/your-username" target="_blank"><i class='bx bxl-telegram'></i></a>
+                <a href="#"><i class='bx bxl-facebook'></i></a>
+                <a href="#"><i class='bx bxl-twitter'></i></a>
+            </div>
+            <div class="footer-links">
+                <a href="#">Política de Privacidade</a>
+                <a href="#">Termos de Uso</a>
+                <a href="#">Contato</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const videos = [
+            {
+                url: "https://files.catbox.moe/si6k7d.mp4",
+                poster: "https://files.catbox.moe/nkjplo.jpg",
+                title: "3 spectacular Japanese ladies oral pleasure Yu Shinoda and make her cum! Uncensored JAV!",
+                tags: ["blowjob", "japan"]
+            },
+            {
+
+url: "https://files.catbox.moe/wkxnva.mp4",
+
+poster: "https://files.catbox.moe/3pcxdh.jpg",
+
+title: "Milf drains neighbor",
+
+tags: ["blowjob",]
+
+},
+{
+
+
+url: "https://files.catbox.moe/160j0c.mp4",
+
+poster: "https://files.catbox.moe/q2mt5e.jpg",
+
+title: "Vitoria Anjos A Mini Caramell Pagando Boquete Babado Na Pica Grossa",
+
+tags: ["blowjob", "karolay chaves", "onlyfans"]
+
+},
+{
+
+
+url: "https://files.catbox.moe/4ceyyk.mp4",
+
+poster: "https://files.catbox.moe/hcz583.jpg",
+
+title: "karolay chaves mamando",
+
+tags: ["blowjob", "karolay chaves", "onlyfans"]
+
+},
+{
+url: "https://files.catbox.moe/z6fpt8.mp4",
+poster: "https://files.catbox.moe/nja5ml.jpg",
+title: "video 3",
+tags: ["carros", "carros-esportivos"]
+},
+{
+url: "https://files.catbox.moe/ma6zg1.mp4",
+poster: "https://files.catbox.moe/muww9a.jpg",
+title: "mirian Gabriela rebolando mostrando a buceta",
+tags: ["funk", "dançando","rebolando"]
+},
+{
+
+url: "https://files.catbox.moe/rrtvdv.mp4",
+
+poster: "https://files.catbox.moe/tpj0qe.jpg",
+
+title: "Loirinha espetacular de 4",
+
+tags: ["blowjob",]
+
+},
+{
+url: "https://files.catbox.moe/hsc1tm.mp4",
+poster: "https://files.catbox.moe/51dkhf.webp",
+title: "video 2",
+tags: ["carros", "carros-esportivos"]
+},
+{
+
+url: "https://api.files.vc/files/b3k/a6eec92167a1bf3df9a83e0801d94e84.mp4",
+
+poster: "https://files.catbox.moe/8kmt7a.webp",
+
+title: "POV fuck! Hot latina milf with big tits fucks a huge dick - Carla Morelli",
+
+tags: ["blowjob",]
+
+},
+{
+
+url: "https://vdownload-47.sb-cd.com/1/6/16122766-1080p.mp4?secure=ggYHt2UrCdKMlN0hVEphpw,1741613440&m=47&d=1&_tid=16122766",
+
+poster: "https://files.catbox.moe/d2xkjj.webp",
+
+title: "Enjoy every inch of the BBC and let it throb in his mouth -amateur couple- nysdel",
+
+tags: ["blowjob",]
+
+},
+{
+
+url: "https://vdownload-47.sb-cd.com/1/4/14787106-4k.mp4?secure=NWnNwS3eJ6Xz-w0tC9izjg,1741613829&m=47&d=1&_tid=14787106",
+
+poster: "https://tbi.sb-cd.com/t/14787106/1/4/w:500/t6-enh/white-girl-sucking-bbc.jpg",
+
+title: "White girl sucking bbc",
+
+tags: ["blowjob",]
+
+},
+
+
+{
+url: "https://vdownload-24.sb-cd.com/8/1/8145053-720p.mp4?secure=554SbANWfduNdQHhX7k2yA,1741623569&m=24&d=4&_tid=8145053",
+poster: "https://tbi.sb-cd.com/t/8145053/8/1/w:500/t6-enh/daniel-and-anna-2020-12-29-fac.jpg",
+title: "Daniel & Anna - 2020 Special Edition: Intense Performance & Precision",
+tags: ["high-speed action", "intense experience", "precision engineering", "perfect finish"]
+},
+{
+
+url: "https://api.files.vc/files/1ww/27d1647cbf00e636d646ede1063ef58b.mp4",
+
+poster: "https://tbi.sb-cd.com/t/12932243/1/2/w:1280/t6-enh/nasteppa.jpg",
+
+title: "Nasteppa",
+
+tags: ["blowjob",]
+
+},
+{
+
+url: "https://api.files.vc/files/lm9/eca777bc0fbc3a6519dd174f9818b79a.mp4",
+
+poster: "https://ic-vt-nss.xhcdn.com/a/ODQ0OWE5MDNiODRiZDk0NWY0NTMwNWYyNTIwMWNiYmY/s(w:1280,h:720),webp/024/926/114/1280x720.17212955.jpg",
+
+title: "Nicole Murkovski Takes in Ass Monster Cock by Leo Casanova",
+
+tags: ["blowjob","anal","leo casanova","Nicole Murkovski","loira","magrinha"]
+
+},
+{
+
+url: "https://api.files.vc/files/lm9/eca777bc0fbc3a6519dd174f9818b79a.mp4",
+
+poster: "https://ic-vt-nss.xhcdn.com/a/ODQ0OWE5MDNiODRiZDk0NWY0NTMwNWYyNTIwMWNiYmY/s(w:1280,h:720),webp/024/926/114/1280x720.17212955.jpg",
+
+title: "Nicole Murkovski Takes in Ass Monster Cock by Leo Casanova",
+
+tags: ["blowjob","anal","leo casanova","Nicole Murkovski","loira","magrinha"]
+}
+
+        ];
+
+        let currentPlayer = null;
+
+        function toggleMenu() {
+            const menu = document.querySelector('.nav-menu');
+            const menuToggle = document.querySelector('.menu-toggle i');
+            const overlay = document.querySelector('.menu-overlay');
+            const body = document.body;
+
+            menu.classList.toggle('active');
+            menuToggle.classList.toggle('bx-menu');
+            menuToggle.classList.toggle('bx-x');
+            overlay.classList.toggle('active');
+            body.classList.toggle('menu-open');
+        }
+
+        function toggleSubmenu(element) {
+            if (window.innerWidth <= 1024) {
+                const menuItem = element.parentElement;
+                const wasActive = menuItem.classList.contains('active');
+                
+                document.querySelectorAll('.menu-item.active').forEach(item => {
+                    if (item !== menuItem) {
+                        item.classList.remove('active');
+                    }
+                });
+
+                menuItem.classList.toggle('active');
+                
+                if (!wasActive) {
+                    event.preventDefault();
+                }
+            }
+        }
+
+        function createVideoCard(video, index) {
+            const div = document.createElement('div');
+            div.className = 'video-card';
+            div.innerHTML = `
+                <a href="/video/${index}" class="video-link" onclick="showVideoPage(${index}); return false;">
+                    <div class="thumbnail-container">
+                        <img src="${video.poster}" alt="${video.title}" class="video-thumbnail">
+                        <div class="play-overlay">
+                            <i class='bx bx-play-circle play-icon'></i>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">${video.title}</h3>
+                    </div>
+                </a>
+            `;
+            return div;
+        }
+
+        function showVideoPage(videoIndex) {
+            const video = videos[videoIndex];
+            const homePage = document.getElementById('homePage');
+            const videoPage = document.getElementById('videoPage');
+            
+            homePage.style.display = 'none';
+            videoPage.style.display = 'block';
+            
+            window.scrollTo(0, 0);
+            
+            document.getElementById('currentVideoTitle').textContent = video.title;
+            document.getElementById('currentVideoTags').innerHTML = video.tags
+                .map(tag => `<a href="/tag/${encodeURIComponent(tag)}" class="tag" onclick="filterByTag('${tag}'); return false;">${tag}</a>`)
+                .join(', ');
+            
+            const recommendedVideosContainer = document.getElementById('recommendedVideos');
+            recommendedVideosContainer.innerHTML = '';
+            
+            videos.forEach((recVideo, index) => {
+                if (index !== videoIndex) {
+                    const recommendedVideo = document.createElement('div');
+                    recommendedVideo.className = 'recommended-video';
+                    recommendedVideo.innerHTML = `
+                        <a href="/video/${index}" class="video-link" onclick="showVideoPage(${index}); return false;">
+                            <img src="${recVideo.poster}" alt="${recVideo.title}" class="recommended-thumbnail">
+                            <div class="recommended-info">
+                                <h3 class="video-title">${recVideo.title}</h3>
+                                <div class="video-tags">
+                                    ${recVideo.tags.map(tag => 
+                                        `<a href="/tag/${encodeURIComponent(tag)}" class="tag" onclick="filterByTag('${tag}'); event.preventDefault(); event.stopPropagation();">${tag}</a>`
+                                    ).join(', ')}
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                    recommendedVideosContainer.appendChild(recommendedVideo);
+                }
+            });
+            
+            if (currentPlayer) {
+                currentPlayer.destroy();
+                currentPlayer = null;
+            }
+            
+            const mainVideoContainer = document.querySelector('.main-video');
+            mainVideoContainer.innerHTML = '<video id="video-player"></video>';
+            
+            const videoElement = document.getElementById('video-player');
+            videoElement.innerHTML = `<source src="${video.url}" type="video/mp4">`;
+            
+            currentPlayer = fluidPlayer('video-player', {
+                layoutControls: {
+                    controlBar: {
+                        autoHideTimeout: 3,
+                        animated: true,
+                        autoHide: true
+                    },
+                    htmlOnPauseBlock: {
+                        html: null,
+                        height: null,
+                        width: null
+                    },
+                    autoPlay: false,
+                    mute: false,
+                    allowTheatre: true,
+                    playPauseAnimation: true,
+                    playbackRateEnabled: false,
+                    allowDownload: false,
+                    playButtonShowing: true,
+                    fillToContainer: true,
+                    posterImage: video.poster
+                }
+            });
+            
+            window.history.pushState({videoIndex}, '', `/video/${videoIndex}`);
+        }
+
+        function filterByTag(tag) {
+            const videoGrid = document.getElementById('videoGrid');
+            videoGrid.innerHTML = '';
+            
+            videos.forEach((video, index) => {
+                if (video.tags.includes(tag)) {
+                    const videoCard = createVideoCard(video, index);
+                    videoGrid.appendChild(videoCard);
+                }
+            });
+
+            const homePage = document.getElementById('homePage');
+            const videoPage = document.getElementById('videoPage');
+            
+            homePage.style.display = 'block';
+            videoPage.style.display = 'none';
+            
+            window.scrollTo(0, 0);
+            
+            window.history.pushState({tag}, '', `/tag/${encodeURIComponent(tag)}`);
+        }
+
+        function resetAndShowHome() {
+            const homePage = document.getElementById('homePage');
+            const videoPage = document.getElementById('videoPage');
+            const searchInput = document.getElementById('searchInput');
+            
+            if (currentPlayer) {
+                currentPlayer.destroy();
+                currentPlayer = null;
+            }
+
+            searchInput.value = '';
+            
+            initializeGallery();
+
+            homePage.style.display = 'block';
+            videoPage.style.display = 'none';
+            
+            window.scrollTo(0, 0);
+            
+            window.history.pushState({}, '', '/');
+        }
+
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const videoGrid = document.getElementById('videoGrid');
+            videoGrid.innerHTML = '';
+            
+            videos.forEach((video, index) => {
+                if (video.title.toLowerCase().includes(query) ||
+                    video.tags.some(tag => tag.toLowerCase().includes(query))) {
+                    const videoCard = createVideoCard(video, index);
+                    videoGrid.appendChild(videoCard);
+                }
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        document.addEventListener('click', function(event) {
+            const menu = document.querySelector('.nav-menu');
+            const menuToggle = document.querySelector('.menu-toggle');
+            
+            if (menu.classList.contains('active') && 
+                !menu.contains(event.target) && 
+                !menuToggle.contains(event.target)) {
+                toggleMenu();
+            }
+        });
+
+        window.onpopstate = function(event) {
+            const path = window.location.pathname;
+            if (path.startsWith('/video/')) {
+                const videoIndex = parseInt(path.replace('/video/', ''));
+                if (!isNaN(videoIndex) && videoIndex >= 0 && videoIndex < videos.length) {
+                    showVideoPage(videoIndex);
+                } else {
+                    resetAndShowHome();
+                }
+            } else if (path.startsWith('/tag/')) {
+                const tag = decodeURIComponent(path.replace('/tag/', ''));
+                filterByTag(tag);
+            } else {
+                resetAndShowHome();
+            }
+        };
+
+        function initializeGallery() {
+            const videoGrid = document.getElementById('videoGrid');
+            videoGrid.innerHTML = '';
+            videos.forEach((video, index) => {
+                const videoCard = createVideoCard(video, index);
+                videoGrid.appendChild(videoCard);
+            });
+        }
+
+        window.onload = function() {
+            initializeGallery();
+            
+            const path = window.location.pathname;
+            if (path.startsWith('/video/')) {
+                const videoIndex = parseInt(path.replace('/video/', ''));
+                if (!isNaN(videoIndex) && videoIndex >= 0 && videoIndex < videos.length) {
+                    showVideoPage(videoIndex);
+                }
+            } else if (path.startsWith('/tag/')) {
+                const tag = decodeURIComponent(path.replace('/tag/', ''));
+                filterByTag(tag);
+            }
+        };
+    </script>
+  <script type="text/javascript">
+
+   var uid = '262679';
+
+   var wid = '683262';
+
+   var pop_tag = document.createElement('script');pop_tag.src='//cdn.popcash.net/show.js';document.body.appendChild(pop_tag);
+
+   pop_tag.onerror = function() {pop_tag = document.createElement('script');pop_tag.src='//cdn2.popcash.net/show.js';document.body.appendChild(pop_tag)};
+
+</script>
+</body>
+</html>
