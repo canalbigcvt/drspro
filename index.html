@@ -337,7 +337,7 @@
         .recommended-title {
             font-size: 1.5em;
             color: #fff;
-            margin-bottom: 20px;
+            margin-bottom: 5px;
         }
 
         .recommended-grid {
@@ -366,6 +366,18 @@
         .recommended-info {
             padding: 15px;
         }
+        .recommended-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 colunas em telas maiores */
+    gap: 20px;
+       }
+
+@media (max-width: 768px) { /* Quando a tela for menor que 768px (típico para tablets e celulares) */
+    .recommended-grid {
+        grid-template-columns: 1fr; /* Apenas uma coluna em telas menores */
+    }
+       }
+
 
         .pagination {
             display: flex;
