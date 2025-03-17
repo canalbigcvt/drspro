@@ -324,52 +324,80 @@
 
         @media (min-width: 1024px) {
             .video-container {
-                grid-template-columns: 2fr 1fr;
-            }
-
-            #video-player:not(.fluid_video_wrapper--fullscreen) {
-                aspect-ratio: 16/9 !important;
-                height: auto !important;
+                grid-template-columns: 1fr;
+                max-width: 1200px;
+                margin: 0 auto;
             }
         }
 
         .recommended-videos {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            margin-top: 30px;
         }
 
         .recommended-title {
             font-size: 1.5em;
             color: #fff;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .recommended-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
         }
 
         .recommended-video {
-            display: flex;
-            gap: 15px;
             background: #1a1a1a;
             border-radius: 8px;
             overflow: hidden;
-            transition: background-color 0.3s;
+            transition: transform 0.3s;
         }
 
         .recommended-video:hover {
-            background: #2a2a2a02;
+            transform: translateY(-5px);
         }
 
         .recommended-thumbnail {
-            width: 160px;
+            width: 100%;
             aspect-ratio: 16/9;
             object-fit: cover;
         }
 
         .recommended-info {
-            padding: 10px;
-            flex: 1;
+            padding: 15px;
         }
 
-        .back-button {
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 30px 0;
+        }
+
+        .page-button {
+            background: #4a148c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .page-button:hover {
+            background: #9c27b0;
+        }
+
+        .page-button.active {
+            background: #9c27b0;
+        }
+
+        .page-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+         .back-button {
             display: inline-block;
             margin-bottom: 20px;
             padding: 10px 20px;
@@ -516,7 +544,7 @@
 <body>
     <div class="menu-overlay" onclick="toggleMenu()"></div>
     <header class="header">
-        <a href="/" onclick="resetAndShowHome(); return false;" class="logo-container">
+        <a href="#" onclick="resetAndShowHome(); return false;" class="logo-container">
             <img src="https://files.catbox.moe/rt66bs.png" alt="Logo" class="logo-image">
         </a>
         <button class="menu-toggle" onclick="toggleMenu()">
@@ -528,9 +556,9 @@
                     <li class="menu-item">
                         <a href="#" class="menu-link" onclick="toggleSubmenu(this)">Categories</a>
                         <ul class="submenu">
-                            <li class="submenu-item"><a href="/tag/action" onclick="filterByTag('action'); return false;" class="submenu-link">Action</a></li>
-                            <li class="submenu-item"><a href="/tag/comedy" onclick="filterByTag('comedy'); return false;" class="submenu-link">Comedy</a></li>
-                            <li class="submenu-item"><a href="/tag/drama" onclick="filterByTag('drama'); return false;" class="submenu-link">Drama</a></li>
+                            <li class="submenu-item"><a href="#tag=action" onclick="filterByTag('action'); return false;" class="submenu-link">Action</a></li>
+                            <li class="submenu-item"><a href="#tag=comedy" onclick="filterByTag('comedy'); return false;" class="submenu-link">Comedy</a></li>
+                            <li class="submenu-item"><a href="#tag=drama" onclick="filterByTag('drama'); return false;" class="submenu-link">Drama</a></li>
                         </ul>
                     </li>
                     <li class="menu-item">
@@ -560,7 +588,7 @@
     </div>
 
     <div id="videoPage" class="video-page">
-        <a href="/" class="back-button" onclick="resetAndShowHome(); return false;">
+        <a href="#" class="back-button" onclick="resetAndShowHome(); return false;">
             <i class='bx bx-arrow-back'></i> Voltar
         </a>
         <div class="video-container">
@@ -575,7 +603,7 @@
             </div>
             <div class="recommended-videos">
                 <h2 class="recommended-title">Vídeos Recomendados</h2>
-                <div id="recommendedVideos"></div>
+                <div id="recommendedVideos" class="recommended-grid"></div>
             </div>
         </div>
     </div>
@@ -597,151 +625,108 @@
     </footer>
 
     <script>
+        const VIDEOS_PER_PAGE = 12;
+        let currentPage = 1;
+
         const videos = [
             {
+                id: "video-smile-japan-2023",
                 url: "https://files.catbox.moe/si6k7d.mp4",
                 poster: "https://files.catbox.moe/nkjplo.jpg",
-                title: "3 spectacular Japanese ladies oral pleasure Yu Shinoda and make her cum! Uncensored JAV!",
-                tags: ["blowjob", "japan"]
+                title: "video 1",
+                tags: ["smile", "japan"]
             },
             {
-
-url: "https://files.catbox.moe/wkxnva.mp4",
-
-poster: "https://files.catbox.moe/3pcxdh.jpg",
-
-title: "Milf drains neighbor",
-
-tags: ["blowjob",]
-
-},
-{
-
-
-url: "https://files.catbox.moe/160j0c.mp4",
-
-poster: "https://files.catbox.moe/q2mt5e.jpg",
-
-title: "Vitoria Anjos A Mini Caramell Pagando Boquete Babado Na Pica Grossa",
-
-tags: ["blowjob", "karolay chaves", "onlyfans"]
-
-},
-{
-
-
-url: "https://files.catbox.moe/4ceyyk.mp4",
-
-poster: "https://files.catbox.moe/hcz583.jpg",
-
-title: "karolay chaves mamando",
-
-tags: ["blowjob", "karolay chaves", "onlyfans"]
-
-},
-{
-url: "https://files.catbox.moe/z6fpt8.mp4",
-poster: "https://files.catbox.moe/nja5ml.jpg",
-title: "video 3",
-tags: ["carros", "carros-esportivos"]
-},
-{
-url: "https://files.catbox.moe/ma6zg1.mp4",
-poster: "https://files.catbox.moe/muww9a.jpg",
-title: "mirian Gabriela rebolando mostrando a buceta",
-tags: ["funk", "dançando","rebolando"]
-},
-{
-
-url: "https://files.catbox.moe/rrtvdv.mp4",
-
-poster: "https://files.catbox.moe/tpj0qe.jpg",
-
-title: "Loirinha espetacular de 4",
-
-tags: ["blowjob",]
-
-},
-{
-url: "https://files.catbox.moe/hsc1tm.mp4",
-poster: "https://files.catbox.moe/51dkhf.webp",
-title: "video 2",
-tags: ["carros", "carros-esportivos"]
-},
-{
-
-url: "https://api.files.vc/files/b3k/a6eec92167a1bf3df9a83e0801d94e84.mp4",
-
-poster: "https://files.catbox.moe/8kmt7a.webp",
-
-title: "POV fuck! Hot latina milf with big tits fucks a huge dick - Carla Morelli",
-
-tags: ["blowjob",]
-
-},
-{
-
-url: "https://vdownload-47.sb-cd.com/1/6/16122766-1080p.mp4?secure=ggYHt2UrCdKMlN0hVEphpw,1741613440&m=47&d=1&_tid=16122766",
-
-poster: "https://files.catbox.moe/d2xkjj.webp",
-
-title: "Enjoy every inch of the BBC and let it throb in his mouth -amateur couple- nysdel",
-
-tags: ["blowjob",]
-
-},
-{
-
-url: "https://vdownload-47.sb-cd.com/1/4/14787106-4k.mp4?secure=NWnNwS3eJ6Xz-w0tC9izjg,1741613829&m=47&d=1&_tid=14787106",
-
-poster: "https://tbi.sb-cd.com/t/14787106/1/4/w:500/t6-enh/white-girl-sucking-bbc.jpg",
-
-title: "White girl sucking bbc",
-
-tags: ["blowjob",]
-
-},
-
-
-{
-url: "https://vdownload-24.sb-cd.com/8/1/8145053-720p.mp4?secure=554SbANWfduNdQHhX7k2yA,1741623569&m=24&d=4&_tid=8145053",
-poster: "https://tbi.sb-cd.com/t/8145053/8/1/w:500/t6-enh/daniel-and-anna-2020-12-29-fac.jpg",
-title: "Daniel & Anna - 2020 Special Edition: Intense Performance & Precision",
-tags: ["high-speed action", "intense experience", "precision engineering", "perfect finish"]
-},
-{
-
-url: "https://api.files.vc/files/1ww/27d1647cbf00e636d646ede1063ef58b.mp4",
-
-poster: "https://tbi.sb-cd.com/t/12932243/1/2/w:1280/t6-enh/nasteppa.jpg",
-
-title: "Nasteppa",
-
-tags: ["blowjob",]
-
-},
-{
-
-url: "https://api.files.vc/files/lm9/eca777bc0fbc3a6519dd174f9818b79a.mp4",
-
-poster: "https://ic-vt-nss.xhcdn.com/a/ODQ0OWE5MDNiODRiZDk0NWY0NTMwNWYyNTIwMWNiYmY/s(w:1280,h:720),webp/024/926/114/1280x720.17212955.jpg",
-
-title: "Nicole Murkovski Takes in Ass Monster Cock by Leo Casanova",
-
-tags: ["blowjob","anal","leo casanova","Nicole Murkovski","loira","magrinha"]
-
-},
-{
-
-url: "https://api.files.vc/files/lm9/eca777bc0fbc3a6519dd174f9818b79a.mp4",
-
-poster: "https://ic-vt-nss.xhcdn.com/a/ODQ0OWE5MDNiODRiZDk0NWY0NTMwNWYyNTIwMWNiYmY/s(w:1280,h:720),webp/024/926/114/1280x720.17212955.jpg",
-
-title: "Nicole Murkovski Takes in Ass Monster Cock by Leo Casanova",
-
-tags: ["blowjob","anal","leo casanova","Nicole Murkovski","loira","magrinha"]
-}
-
+                id: "video-girl-japan-2023",
+                url: "https://files.catbox.moe/si6k7d.mp4",
+                poster: "https://files.catbox.moe/nkjplo.jpg",
+                title: "video 2",
+                tags: ["girl", "japan"]
+            },
+            {
+                id: "video-tic-japan-2023",
+                url: "https://files.catbox.moe/si6k7d.mp4",
+                poster: "https://files.catbox.moe/nkjplo.jpg",
+                title: "video 3",
+                tags: ["tic", "japan"]
+            },
+           {
+                id: "video-tic-japan-26",
+                url: "https://files.catbox.moe/si6k7d.mp4",
+                poster: "https://files.catbox.moe/nkjplo.jpg",
+                title: "video 3",
+                tags: ["tic", "japan"]
+            },
+           {
+                id: "video-tic-japan-6023",
+                url: "https://files.catbox.moe/si6k7d.mp4",
+                poster: "https://files.catbox.moe/nkjplo.jpg",
+                title: "video 3",
+                tags: ["tic", "japan"]
+            },
+           {
+                id: "vid5o-tic-japan-2023",
+                url: "https://files.catbox.moe/si6k7d.mp4",
+                poster: "https://files.catbox.moe/nkjplo.jpg",
+                title: "video 3",
+                tags: ["tic", "japan"]
+            },
+           {
+                id: "video-t55c-japan-2023",
+                url: "https://files.catbox.moe/si6k7d.mp4",
+                poster: "https://files.catbox.moe/nkjplo.jpg",
+                title: "video 3",
+                tags: ["tic", "japan"]
+            },
+           {
+                id: "video-tic-jap66n-2023",
+                url: "https://files.catbox.moe/si6k7d.mp4",
+                poster: "https://files.catbox.moe/nkjplo.jpg",
+                title: "video 3",
+                tags: ["tic", "japan"]
+            },
+           {
+                id: "v88deo-tic-japan-2023",
+                url: "https://files.catbox.moe/si6k7d.mp4",
+                poster: "https://files.catbox.moe/nkjplo.jpg",
+                title: "video 3",
+                tags: ["tic", "japan"]
+            },
+           {
+                id: "565-tic-japan-2023",
+                url: "https://files.catbox.moe/si6k7d.mp4",
+                poster: "https://files.catbox.moe/nkjplo.jpg",
+                title: "drsfunk",
+                tags: ["tic", "japan"]
+            },
+           {
+                id: "video-tic-5-2023",
+                url: "https://files.catbox.moe/si6k7d.mp4",
+                poster: "https://files.catbox.moe/nkjplo.jpg",
+                title: "video 3",
+                tags: ["tic", "japan"]
+            },
+           {
+                id: "video-tic-77-2023",
+                url: "https://files.catbox.moe/si6k7d.mp4",
+                poster: "https://files.catbox.moe/nkjplo.jpg",
+                title: "video 3",
+                tags: ["tic", "japan"]
+            },
+           {
+                id: "op-tic-japan-2023",
+                url: "https://files.catbox.moe/si6k7d.mp4",
+                poster: "https://files.catbox.moe/nkjplo.jpg",
+                title: "video 3",
+                tags: ["tic", "japan"]
+            },
+           {
+                id: "03-tic-japan-2023",
+                url: "https://files.catbox.moe/si6k7d.mp4",
+                poster: "https://files.catbox.moe/nkjplo.jpg",
+                title: "video 3",
+                tags: ["tic", "japan"]
+            }
         ];
 
         let currentPlayer = null;
@@ -782,7 +767,7 @@ tags: ["blowjob","anal","leo casanova","Nicole Murkovski","loira","magrinha"]
             const div = document.createElement('div');
             div.className = 'video-card';
             div.innerHTML = `
-                <a href="/video/${index}" class="video-link" onclick="showVideoPage(${index}); return false;">
+                <a href="#video=${video.id}" class="video-link" onclick="showVideoPage(${index}); return false;">
                     <div class="thumbnail-container">
                         <img src="${video.poster}" alt="${video.title}" class="video-thumbnail">
                         <div class="play-overlay">
@@ -791,10 +776,88 @@ tags: ["blowjob","anal","leo casanova","Nicole Murkovski","loira","magrinha"]
                     </div>
                     <div class="video-info">
                         <h3 class="video-title">${video.title}</h3>
+                        <div class="video-tags">
+                            ${video.tags.map(tag => 
+                                `<a href="#tag=${encodeURIComponent(tag)}" class="tag" onclick="filterByTag('${tag}'); return false;">${tag}</a>`
+                            ).join(', ')}
+                        </div>
                     </div>
                 </a>
             `;
             return div;
+        }
+
+        function createPagination() {
+            const totalPages = Math.ceil(videos.length / VIDEOS_PER_PAGE);
+            const pagination = document.createElement('div');
+            pagination.className = 'pagination';
+            
+            // Botão anterior
+            const prevButton = document.createElement('button');
+            prevButton.className = `page-button ${currentPage === 1 ? 'disabled' : ''}`;
+            prevButton.textContent = '←';
+            prevButton.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    showPage(currentPage);
+                }
+            };
+            pagination.appendChild(prevButton);
+
+            // Determinar quais números de página mostrar
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            // Números das páginas
+            for (let i = startPage; i <= endPage; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.className = `page-button ${i === currentPage ? 'active' : ''}`;
+                pageButton.textContent = i;
+                pageButton.onclick = () => {
+                    currentPage = i;
+                    showPage(i);
+                };
+                pagination.appendChild(pageButton);
+            }
+
+            // Botão próximo
+            const nextButton = document.createElement('button');
+            nextButton.className = `page-button ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextButton.textContent = '→';
+            nextButton.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    showPage(currentPage);
+                }
+            };
+            pagination.appendChild(nextButton);
+
+            return pagination;
+        }
+
+        function showPage(page) {
+            const videoGrid = document.getElementById('videoGrid');
+            videoGrid.innerHTML = '';
+            
+            const start = (page - 1) * VIDEOS_PER_PAGE;
+            const end = start + VIDEOS_PER_PAGE;
+            const pageVideos = videos.slice(start, end);
+            
+            pageVideos.forEach((video, index) => {
+                const videoCard = createVideoCard(video, start + index);
+                videoGrid.appendChild(videoCard);
+            });
+
+            // Atualizar paginação
+            const oldPagination = document.querySelector('.pagination');
+            if (oldPagination) {
+                oldPagination.remove();
+            }
+            const newPagination = createPagination();
+            videoGrid.parentElement.appendChild(newPagination);
         }
 
         function showVideoPage(videoIndex) {
@@ -809,26 +872,22 @@ tags: ["blowjob","anal","leo casanova","Nicole Murkovski","loira","magrinha"]
             
             document.getElementById('currentVideoTitle').textContent = video.title;
             document.getElementById('currentVideoTags').innerHTML = video.tags
-                .map(tag => `<a href="/tag/${encodeURIComponent(tag)}" class="tag" onclick="filterByTag('${tag}'); return false;">${tag}</a>`)
+                .map(tag => `<a href="#tag=${encodeURIComponent(tag)}" class="tag" onclick="filterByTag('${tag}'); return false;">${tag}</a>`)
                 .join(', ');
             
             const recommendedVideosContainer = document.getElementById('recommendedVideos');
             recommendedVideosContainer.innerHTML = '';
             
+            // Mostrar vídeos recomendados em grid
             videos.forEach((recVideo, index) => {
                 if (index !== videoIndex) {
                     const recommendedVideo = document.createElement('div');
                     recommendedVideo.className = 'recommended-video';
                     recommendedVideo.innerHTML = `
-                        <a href="/video/${index}" class="video-link" onclick="showVideoPage(${index}); return false;">
+                        <a href="#video=${recVideo.id}" class="video-link" onclick="showVideoPage(${index}); return false;">
                             <img src="${recVideo.poster}" alt="${recVideo.title}" class="recommended-thumbnail">
                             <div class="recommended-info">
                                 <h3 class="video-title">${recVideo.title}</h3>
-                                <div class="video-tags">
-                                    ${recVideo.tags.map(tag => 
-                                        `<a href="/tag/${encodeURIComponent(tag)}" class="tag" onclick="filterByTag('${tag}'); event.preventDefault(); event.stopPropagation();">${tag}</a>`
-                                    ).join(', ')}
-                                </div>
                             </div>
                         </a>
                     `;
@@ -871,7 +930,7 @@ tags: ["blowjob","anal","leo casanova","Nicole Murkovski","loira","magrinha"]
                 }
             });
             
-            window.history.pushState({videoIndex}, '', `/video/${videoIndex}`);
+            window.location.hash = `video=${video.id}`;
         }
 
         function filterByTag(tag) {
@@ -893,7 +952,7 @@ tags: ["blowjob","anal","leo casanova","Nicole Murkovski","loira","magrinha"]
             
             window.scrollTo(0, 0);
             
-            window.history.pushState({tag}, '', `/tag/${encodeURIComponent(tag)}`);
+            window.location.hash = `tag=${encodeURIComponent(tag)}`;
         }
 
         function resetAndShowHome() {
@@ -915,7 +974,7 @@ tags: ["blowjob","anal","leo casanova","Nicole Murkovski","loira","magrinha"]
             
             window.scrollTo(0, 0);
             
-            window.history.pushState({}, '', '/');
+            window.location.hash = '';
         }
 
         function performSearch() {
@@ -949,17 +1008,18 @@ tags: ["blowjob","anal","leo casanova","Nicole Murkovski","loira","magrinha"]
             }
         });
 
-        window.onpopstate = function(event) {
-            const path = window.location.pathname;
-            if (path.startsWith('/video/')) {
-                const videoIndex = parseInt(path.replace('/video/', ''));
-                if (!isNaN(videoIndex) && videoIndex >= 0 && videoIndex < videos.length) {
+        window.onhashchange = function() {
+            const hash = window.location.hash.slice(1);
+            if (hash.startsWith('video=')) {
+                const videoId = hash.replace('video=', '');
+                const videoIndex = videos.findIndex(v => v.id === videoId);
+                if (videoIndex !== -1) {
                     showVideoPage(videoIndex);
                 } else {
                     resetAndShowHome();
                 }
-            } else if (path.startsWith('/tag/')) {
-                const tag = decodeURIComponent(path.replace('/tag/', ''));
+            } else if (hash.startsWith('tag=')) {
+                const tag = decodeURIComponent(hash.replace('tag=', ''));
                 filterByTag(tag);
             } else {
                 resetAndShowHome();
@@ -967,39 +1027,30 @@ tags: ["blowjob","anal","leo casanova","Nicole Murkovski","loira","magrinha"]
         };
 
         function initializeGallery() {
-            const videoGrid = document.getElementById('videoGrid');
-            videoGrid.innerHTML = '';
-            videos.forEach((video, index) => {
-                const videoCard = createVideoCard(video, index);
-                videoGrid.appendChild(videoCard);
-            });
+            showPage(1);
         }
 
         window.onload = function() {
             initializeGallery();
             
-            const path = window.location.pathname;
-            if (path.startsWith('/video/')) {
-                const videoIndex = parseInt(path.replace('/video/', ''));
-                if (!isNaN(videoIndex) && videoIndex >= 0 && videoIndex < videos.length) {
+            const hash = window.location.hash.slice(1);
+            if (hash.startsWith('video=')) {
+                const videoId = hash.replace('video=', '');
+                const videoIndex = videos.findIndex(v => v.id === videoId);
+                if (videoIndex !== -1) {
                     showVideoPage(videoIndex);
                 }
-            } else if (path.startsWith('/tag/')) {
-                const tag = decodeURIComponent(path.replace('/tag/', ''));
+            } else if (hash.startsWith('tag=')) {
+                const tag = decodeURIComponent(hash.replace('tag=', ''));
                 filterByTag(tag);
             }
         };
     </script>
-  <script type="text/javascript">
-
-   var uid = '262679';
-
-   var wid = '683262';
-
-   var pop_tag = document.createElement('script');pop_tag.src='//cdn.popcash.net/show.js';document.body.appendChild(pop_tag);
-
-   pop_tag.onerror = function() {pop_tag = document.createElement('script');pop_tag.src='//cdn2.popcash.net/show.js';document.body.appendChild(pop_tag)};
-
-</script>
+    <script type="text/javascript">
+        var uid = '262679';
+        var wid = '683262';
+        var pop_tag = document.createElement('script');pop_tag.src='//cdn.popcash.net/show.js';document.body.appendChild(pop_tag);
+        pop_tag.onerror = function() {pop_tag = document.createElement('script');pop_tag.src='//cdn2.popcash.net/show.js';document.body.appendChild(pop_tag)};
+    </script>
 </body>
 </html>
